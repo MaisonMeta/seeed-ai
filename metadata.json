@@ -1,0 +1,5 @@
+{
+  "name": "seeed.ai Multimodal Chat",
+  "description": "A lightweight, production-ready web app for seeed.ai with a simple multimodal chat interface, drag-and-drop prompt modules, advanced multi-image workflows, and a gallery, using Google Gemini.",
+  "requestFramePermissions": []
+}

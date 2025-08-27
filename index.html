@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>seeed.ai Multimodal Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --color-brand-primary: #F0F8F5; /* Light Mint Green */
+        --color-brand-secondary: #8EDCC1; /* Mint for cards/composer/header */
+        --color-brand-accent: #dc8ea9; /* Pink */
+        --color-brand-complement: #dc8ea9; /* Pink for user messages */
+        --color-brand-text: #1e1e1e;
+        --color-brand-text-secondary: #555555;
+        --color-brand-primary-opposite: #1e1e1e; /* for text on accent/complement bg */
+        --color-brand-border: #0000001a; /* Subtle grey border for light theme */
+      }
+      .dark {
+        --color-brand-primary: #1e1e1e;
+        --color-brand-secondary: #2d2d2d;
+        --color-brand-accent: #8EDCC1;
+        --color-brand-complement: #dc8ea9;
+        --color-brand-text: #e0e0e0;
+        --color-brand-text-secondary: #a0a0a0;
+        --color-brand-primary-opposite: #1e1e1e;
+        --color-brand-border: #ffffff1a; /* Subtle grey border for dark theme */
+      }
+      /* Custom scrollbar for a better look */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: var(--color-brand-secondary);
+        border-radius: 4px;
+        border: 2px solid var(--color-brand-primary);
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background-color: var(--color-brand-secondary);
+        border-color: var(--color-brand-primary);
+      }
+    </style>
+    <script>
+      // Flicker mitigation script
+      if (localStorage.getItem('seeed-ai-theme') === 'dark' || (!('seeed-ai-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'brand-primary': 'var(--color-brand-primary)',
+              'brand-secondary': 'var(--color-brand-secondary)',
+              'brand-accent': 'var(--color-brand-accent)',
+              'brand-complement': 'var(--color-brand-complement)',
+              'brand-text': 'var(--color-brand-text)',
+              'brand-text-secondary': 'var(--color-brand-text-secondary)',
+              'brand-primary-opposite': 'var(--color-brand-primary-opposite)',
+              'brand-border': 'var(--color-brand-border)',
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+            },
+            animation: {
+              fadeIn: 'fadeIn 0.5s ease-in-out',
+            },
+          }
+        }
+      }
+    </script>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.15.0",
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.44.4",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.8.2"
+  }
+}
+</script>
+</head>
+  <body class="bg-brand-primary text-brand-text font-sans">
+    <div id="root"></div>
+  </body>
+</html>
