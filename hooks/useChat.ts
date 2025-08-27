@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useCallback } from 'react';
-import { ChatMessage, AdvancedWorkflow, PromptModule, DraggableItem, ImageFile, ImageInput } from '../lib/types';
-import { ALL_PROMPTS } from '../lib/prompts';
+import { ChatMessage, AdvancedWorkflow, PromptModule, DraggableItem, ImageFile, ImageInput } from '@/lib/types';
+import { ALL_PROMPTS } from '@/lib/prompts';
 import { GenerateContentResponse } from '@google/genai';
 
 export const useChat = () => {

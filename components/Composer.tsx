@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import type { PromptModule, AdvancedWorkflow, ImageFile, ImageInput, DraggableItem } from '../lib/types';
+import type { PromptModule, AdvancedWorkflow, ImageFile, ImageInput, DraggableItem } from '@/lib/types';
 import ImageDropzone from './ImageDropzone';
 import Image from 'next/image';
 

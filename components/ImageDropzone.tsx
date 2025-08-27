@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback } from 'react';
-import { ImageFile } from '../lib/types';
+import { ImageFile } from '@/lib/types';
 import Image from 'next/image';
 
 interface ImageDropzoneProps {

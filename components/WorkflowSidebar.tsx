@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import type { AdvancedWorkflow, ImageFile } from '../lib/types';
+import type { AdvancedWorkflow, ImageFile } from '@/lib/types';
 import ImageDropzone from './ImageDropzone';
 
 interface WorkflowSidebarProps {

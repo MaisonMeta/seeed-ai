@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from 'react';
-import ChatMessage from '../components/ChatMessage';
-import Composer from '../components/Composer';
-import PromptPalette from '../components/PromptPalette';
-import WorkflowSidebar from '../components/WorkflowSidebar';
-import { useChat } from '../hooks/useChat';
-import { ALL_PROMPTS } from '../lib/prompts';
-import type { ChatMessage as ChatMessageType, DraggableItem, ImageFile } from '../lib/types';
+import ChatMessage from '@/components/ChatMessage';
+import Composer from '@/components/Composer';
+import PromptPalette from '@/components/PromptPalette';
+import WorkflowSidebar from '@/components/WorkflowSidebar';
+import { useChat } from '@/hooks/useChat';
+import { ALL_PROMPTS } from '@/lib/prompts';
+import type { ChatMessage as ChatMessageType, DraggableItem, ImageFile } from '@/lib/types';
 
 const ChatPage: React.FC = () => {
     const {

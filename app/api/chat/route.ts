@@ -1,8 +1,8 @@
 
 import { GoogleGenAI, Modality } from "@google/genai";
-import { ALL_PROMPTS } from '../../lib/prompts';
+import { ALL_PROMPTS } from '@/lib/prompts';
 import { NextResponse } from 'next/server';
-import type { ChatMessage } from '../../lib/types';
+import type { ChatMessage } from '@/lib/types';
 
 // FIX: Use process.env.API_KEY as per coding guidelines.
 const API_KEY = process.env.API_KEY;

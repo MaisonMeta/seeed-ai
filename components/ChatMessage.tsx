@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { ChatMessage as ChatMessageType } from '../lib/types';
+import { ChatMessage as ChatMessageType } from '@/lib/types';
 import Image from 'next/image';
 
 interface ChatMessageProps {
