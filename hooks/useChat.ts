@@ -13,14 +13,6 @@ export const useChat = () => {
     const [activeWorkflow, setActiveWorkflow] = useState<AdvancedWorkflow | null>(null);
     const [selectedModules, setSelectedModules] = useState<PromptModule[]>([]);
     const [images, setImages] = useState<ImageInput>([]);
-
-    const resetComposer = () => {
-        // We shouldn't clear the workflow here, as the user might want to try again.
-        // It will be cleared when they manually remove it or send a message.
-        // setActiveWorkflow(null);
-        // setSelectedModules([]);
-        // setImages([]);
-    };
     
     const onDropItem = useCallback((item: DraggableItem) => {
         if (item.type === 'workflow') {
@@ -87,13 +79,14 @@ export const useChat = () => {
             images: imagePreviews,
         };
         
-        setMessages(prev => [...prev, userMessage]);
+        const currentMessages = [...messages, userMessage];
+        setMessages(currentMessages);
 
         const modelMessageId = (Date.now() + 1).toString();
         const initialModelMessage: ChatMessage = {
             id: modelMessageId,
             role: 'model',
-            text: '...',
+            text: hasImages ? 'Generating response with images...' : '...',
             images: [],
             workflowId: activeWorkflow?.id,
             moduleIds: selectedModules.map(m => m.id),
@@ -112,6 +105,12 @@ export const useChat = () => {
         imageFiles.forEach((imgFile, index) => {
             formData.append(`images[${index}]`, imgFile.file);
         });
+
+        if (!hasImages) {
+            // For text-only chat, send message history for context
+            const history = currentMessages.filter(m => m.role === 'user' || m.role === 'model');
+            formData.append('history', JSON.stringify(history));
+        }
 
         try {
             const res = await fetch('/api/chat', {
@@ -157,6 +156,14 @@ export const useChat = () => {
                 if (!reader) throw new Error("Failed to read response body");
 
                 const decoder = new TextDecoder();
+                setMessages(prev =>
+                    prev.map(msg =>
+                        msg.id === modelMessageId
+                            ? { ...msg, text: '' } // Clear the '...'
+                            : msg
+                    )
+                );
+
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
@@ -164,12 +171,18 @@ export const useChat = () => {
                      setMessages(prev =>
                         prev.map(msg =>
                             msg.id === modelMessageId
-                                ? { ...msg, text: msg.text === '...' ? chunk : msg.text + chunk }
+                                ? { ...msg, text: msg.text + chunk }
                                 : msg
                         )
                     );
                 }
             }
+
+            // On success, reset the composer state for the next message
+            setActiveWorkflow(null);
+            setSelectedModules([]);
+            setImages([]);
+
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred';
             setError(errorMessage);
@@ -182,12 +195,8 @@ export const useChat = () => {
             );
         } finally {
             setIsLoading(false);
-            // After sending, reset the composer state for the next message
-            setActiveWorkflow(null);
-            setSelectedModules([]);
-            setImages([]);
         }
-    }, [isLoading, images, activeWorkflow, selectedModules]);
+    }, [isLoading, images, activeWorkflow, selectedModules, messages]);
 
     return {
         messages,

@@ -2,6 +2,7 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import { ALL_PROMPTS } from '../../lib/prompts';
 import { NextResponse } from 'next/server';
+import type { ChatMessage } from '../../lib/types';
 
 // FIX: Use process.env.API_KEY as per coding guidelines.
 const API_KEY = process.env.API_KEY;
@@ -112,9 +113,26 @@ export async function POST(request: Request) {
             return NextResponse.json(response);
 
         } else {
+            const historyRaw = formData.get('history') as string | null;
+            const history: ChatMessage[] = historyRaw ? JSON.parse(historyRaw) : [];
+
+            // Omit the last user message from history, as it's the current prompt
+            const chatHistory = history.slice(0, -1).map(msg => ({
+                role: msg.role,
+                parts: [{ text: msg.text }]
+            }));
+
+             const contents = [
+                ...chatHistory,
+                {
+                    role: 'user' as const,
+                    parts: [{ text: prompt }]
+                }
+            ];
+
             const responseStream = await ai.models.generateContentStream({
                 model: 'gemini-2.5-flash',
-                contents: { parts: [{ text: prompt }] },
+                contents,
                 config: {
                     systemInstruction: systemInstruction,
                 }
@@ -122,10 +140,11 @@ export async function POST(request: Request) {
 
             const stream = new ReadableStream({
                 async start(controller) {
+                    const encoder = new TextEncoder();
                     for await (const chunk of responseStream) {
                         const chunkText = chunk.text;
                         if (chunkText) {
-                           controller.enqueue(new TextEncoder().encode(chunkText));
+                           controller.enqueue(encoder.encode(chunkText));
                         }
                     }
                     controller.close();
