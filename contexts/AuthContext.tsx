@@ -1,5 +1,7 @@
+"use client";
+
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { supabase } from '../services/supabase';
+import { supabase } from '../lib/supabase/client';
 import type { Session, User } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -41,7 +43,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: process.env.NEXT_PUBLIC_SITE_URL || window.location.origin,
+        redirectTo: window.location.origin,
       },
     });
     if (error) console.error('Error logging in:', error.message);
@@ -50,6 +52,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) console.error('Error logging out:', error.message);
+    // You might want to redirect the user after sign out
   };
 
   const value = {

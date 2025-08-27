@@ -6,23 +6,26 @@ import ChatPage from './pages/ChatPage';
 import GalleryPage from './pages/GalleryPage';
 import AccountPage from './pages/AccountPage';
 import { AuthProvider } from './contexts/AuthContext';
+import ThemeProvider from './contexts/ThemeContext';
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <HashRouter>
-        <div className="flex flex-col h-screen bg-brand-primary">
-          <Header />
-          <main className="flex-grow overflow-hidden">
-            <Routes>
-              <Route path="/" element={<ChatPage />} />
-              <Route path="/gallery" element={<GalleryPage />} />
-              <Route path="/account" element={<AccountPage />} />
-            </Routes>
-          </main>
-        </div>
-      </HashRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <HashRouter>
+          <div className="flex flex-col h-screen bg-brand-primary">
+            <Header />
+            <main className="flex-grow overflow-hidden">
+              <Routes>
+                <Route path="/" element={<ChatPage />} />
+                <Route path="/gallery" element={<GalleryPage />} />
+                <Route path="/account" element={<AccountPage />} />
+              </Routes>
+            </main>
+          </div>
+        </HashRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 

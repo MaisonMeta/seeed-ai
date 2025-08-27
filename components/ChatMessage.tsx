@@ -1,5 +1,8 @@
+"use client";
+
 import React from 'react';
-import { ChatMessage as ChatMessageType } from '../types';
+import { ChatMessage as ChatMessageType } from '../lib/types';
+import Image from 'next/image';
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -22,8 +25,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSaveToGallery }) =
           {message.images && message.images.length > 0 && (
             <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
               {message.images.map((img, index) => (
-                <div key={index} className="group relative rounded-md overflow-hidden">
-                  <img src={img} alt={isUser ? `user upload ${index + 1}` : `generated image ${index + 1}`} className="w-full h-full object-cover"/>
+                <div key={index} className="group relative rounded-md overflow-hidden aspect-square">
+                  <Image src={img} alt={isUser ? `user upload ${index + 1}` : `generated image ${index + 1}`} fill className="object-cover"/>
                   {!isUser && onSaveToGallery && (
                       <button
                           onClick={() => onSaveToGallery(message, img)}
@@ -44,9 +47,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSaveToGallery }) =
       </div>
       {isUser && (
         <div className="w-8 h-8 rounded-full bg-brand-secondary flex-shrink-0 flex items-center justify-center">
-            <img 
+            <Image 
               src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" 
               alt="User Avatar"
+              width={32}
+              height={32}
               className="w-full h-full rounded-full"
             />
         </div>

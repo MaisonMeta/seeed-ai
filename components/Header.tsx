@@ -1,19 +1,20 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, To } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import Image from 'next/image';
 
 const ThemeToggle: React.FC = () => {
-  const [theme, setTheme] = useState(localStorage.getItem('seeed-ai-theme') || 'light');
-
-  useEffect(() => {
-    const isDark = theme === 'dark';
-    document.documentElement.classList.toggle('dark', isDark);
-    localStorage.setItem('seeed-ai-theme', theme);
-  }, [theme]);
+  const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
+
+  if (theme === null) return null; // Avoid rendering until theme is loaded
 
   return (
     <button onClick={toggleTheme} className="text-brand-text-secondary hover:text-brand-accent transition-colors p-2 rounded-full" aria-label="Toggle theme">
@@ -26,16 +27,18 @@ const ThemeToggle: React.FC = () => {
   );
 };
 
-const NavIconLink: React.FC<{ to: To; label: string; children: React.ReactNode }> = ({ to, label, children }) => {
+const NavIconLink: React.FC<{ href: string; label: string; children: React.ReactNode }> = ({ href, label, children }) => {
+  const pathname = usePathname();
+  const isActive = pathname === href;
   const activeLinkClass = "text-brand-accent";
   const inactiveLinkClass = "text-brand-text-secondary hover:text-brand-text transition-colors";
 
   return (
     <div className="relative group flex justify-center">
-      <NavLink to={to} className={({ isActive }) => (isActive ? activeLinkClass : inactiveLinkClass)}>
+      <Link href={href} className={isActive ? activeLinkClass : inactiveLinkClass}>
         {children}
         <span className="sr-only">{label}</span>
-      </NavLink>
+      </Link>
       <div className="absolute bottom-full mb-2 w-auto p-2 min-w-max bg-brand-primary-opposite text-white text-xs rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
         {label}
       </div>
@@ -63,9 +66,11 @@ const UserMenu: React.FC = () => {
   return (
     <div className="relative" ref={menuRef}>
       <button onClick={() => setIsOpen(!isOpen)} aria-label="Open user menu">
-        <img
+        <Image
           src={user.user_metadata.avatar_url || `https://www.gravatar.com/avatar/${user.id}?d=mp&f=y`}
           alt="User Avatar"
+          width={40}
+          height={40}
           className="w-10 h-10 rounded-full border-2 border-brand-primary"
         />
       </button>
@@ -105,17 +110,17 @@ const Header: React.FC = () => {
         <h1 className="text-xl font-bold text-brand-text">seeed.ai</h1>
       </div>
       <nav className="hidden md:flex items-center gap-8">
-        <NavIconLink to="/" label="Chat">
+        <NavIconLink href="/" label="Chat">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
         </NavIconLink>
-        <NavIconLink to="/gallery" label="Gallery">
+        <NavIconLink href="/gallery" label="Gallery">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </NavIconLink>
-        <NavIconLink to="/account" label="Account">
+        <NavIconLink href="/account" label="Account">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>

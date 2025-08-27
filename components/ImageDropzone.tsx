@@ -1,5 +1,8 @@
+"use client";
+
 import React, { useState, useRef, useCallback } from 'react';
-import { ImageFile } from '../types';
+import { ImageFile } from '../lib/types';
+import Image from 'next/image';
 
 interface ImageDropzoneProps {
   onFilesChange: (files: ImageFile[]) => void;
@@ -81,7 +84,7 @@ const ImageDropzone: React.FC<ImageDropzoneProps> = ({ onFilesChange, preview, l
       />
       {preview ? (
         <>
-          <img src={preview} alt="Preview" className="block w-full h-full object-contain rounded-md" />
+          <Image src={preview} alt="Preview" fill className="object-contain rounded-md" />
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center rounded-lg" aria-hidden="true">
             <span className="text-white text-sm font-bold pointer-events-none">Change</span>
           </div>

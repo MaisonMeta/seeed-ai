@@ -1,11 +1,14 @@
+
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { ChatMessage, PromptModule, AdvancedWorkflow, ImageInput } from '../types';
 import { fileToBase64 } from '../utils/fileUtils';
 
-const API_KEY = process.env.GOOGLE_GEMINI_API_KEY;
+// FIX: Use process.env.API_KEY as per coding guidelines.
+const API_KEY = process.env.API_KEY;
 
 if (!API_KEY) {
-  console.warn("Gemini API key not found. Please set the GOOGLE_GEMINI_API_KEY environment variable. Using mock service.");
+  // FIX: Update warning message to reflect the correct environment variable name.
+  console.warn("Gemini API key not found. Please set the API_KEY environment variable. Using mock service.");
 }
 
 const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;

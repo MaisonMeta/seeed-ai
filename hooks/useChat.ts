@@ -1,8 +1,9 @@
+"use client";
 
 import { useState, useCallback } from 'react';
-import { ChatMessage, AdvancedWorkflow, PromptModule, DraggableItem, ImageFile, ImageInput } from '../types';
-import { ALL_PROMPTS } from '../constants/prompts';
-import { streamChatResponse, generateImageResponse } from '../services/geminiService';
+import { ChatMessage, AdvancedWorkflow, PromptModule, DraggableItem, ImageFile, ImageInput } from '../lib/types';
+import { ALL_PROMPTS } from '../lib/prompts';
+import { GenerateContentResponse } from '@google/genai';
 
 export const useChat = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -14,19 +15,19 @@ export const useChat = () => {
     const [images, setImages] = useState<ImageInput>([]);
 
     const resetComposer = () => {
-        setActiveWorkflow(null);
-        setSelectedModules([]);
-        setImages([]);
+        // We shouldn't clear the workflow here, as the user might want to try again.
+        // It will be cleared when they manually remove it or send a message.
+        // setActiveWorkflow(null);
+        // setSelectedModules([]);
+        // setImages([]);
     };
     
     const onDropItem = useCallback((item: DraggableItem) => {
         if (item.type === 'workflow') {
             const workflow = ALL_PROMPTS.workflows.find(w => w.id === item.id);
             if (workflow) {
-                // Reset everything when a new workflow is selected
                 setActiveWorkflow(workflow);
                 setSelectedModules([]);
-                // Initialize image state for workflow slots
                 const initialImages: Record<string, null> = {};
                 workflow.image_slots.forEach(slot => {
                     initialImages[slot.id] = null;
@@ -47,15 +48,13 @@ export const useChat = () => {
     
     const onRemoveWorkflow = useCallback(() => {
         setActiveWorkflow(null);
-        setImages([]); // Reset to standard image array
+        setImages([]);
     }, []);
 
     const onImagesChange = useCallback((files: ImageFile[], slotId?: string) => {
         if (activeWorkflow && slotId) {
-            // In workflow mode, a slot only takes one image.
             setImages(prev => ({ ...(prev as Record<string, ImageFile | null>), [slotId]: files[0] || null }));
         } else {
-            // In standard mode, append all new images.
             setImages(prev => [...(prev as ImageFile[]), ...files]);
         }
     }, [activeWorkflow]);
@@ -101,41 +100,75 @@ export const useChat = () => {
         };
         setMessages(prev => [...prev, initialModelMessage]);
 
-        try {
-            if (hasImages) {
-                // Use new image generation service for multimodal prompts
-                const response = await generateImageResponse(
-                    prompt,
-                    images,
-                    activeWorkflow,
-                    selectedModules
-                );
+        const formData = new FormData();
+        formData.append('prompt', prompt);
+        formData.append('workflowId', activeWorkflow?.id || '');
+        formData.append('moduleIds', JSON.stringify(selectedModules.map(m => m.id)));
 
+        const imageFiles = Array.isArray(images) 
+            ? images 
+            : Object.values(images).filter((i): i is ImageFile => i !== null);
+
+        imageFiles.forEach((imgFile, index) => {
+            formData.append(`images[${index}]`, imgFile.file);
+        });
+
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'API request failed');
+            }
+
+            if (hasImages) {
+                const response: GenerateContentResponse = await res.json();
+                let responseText: string | null = null;
+                const responseImages: string[] = [];
+
+                if (response.candidates && response.candidates.length > 0) {
+                    for (const part of response.candidates[0].content.parts) {
+                        if (part.text) {
+                            responseText = (responseText || '') + part.text;
+                        } else if (part.inlineData) {
+                            const base64ImageBytes: string = part.inlineData.data;
+                            const mimeType = part.inlineData.mimeType;
+                            const imageUrl = `data:${mimeType};base64,${base64ImageBytes}`;
+                            responseImages.push(imageUrl);
+                        }
+                    }
+                } else {
+                    responseText = "I couldn't generate a response. The request may have been blocked due to safety policies. Please try again with a different prompt or image.";
+                }
+                
                 setMessages(prev =>
                     prev.map(msg =>
                         msg.id === modelMessageId
-                            ? { ...msg, text: response.text || '', images: response.images }
+                            ? { ...msg, text: responseText || '', images: responseImages }
                             : msg
                     )
                 );
+
             } else {
-                // Use existing text streaming service for text-only prompts
-                await streamChatResponse(
-                    messages,
-                    prompt,
-                    images, // Will be empty array
-                    activeWorkflow,
-                    selectedModules,
-                    (chunk) => {
-                        setMessages(prev =>
-                            prev.map(msg =>
-                                msg.id === modelMessageId
-                                    ? { ...msg, text: msg.text === '...' ? chunk : msg.text + chunk }
-                                    : msg
-                            )
-                        );
-                    }
-                );
+                const reader = res.body?.getReader();
+                if (!reader) throw new Error("Failed to read response body");
+
+                const decoder = new TextDecoder();
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value, { stream: true });
+                     setMessages(prev =>
+                        prev.map(msg =>
+                            msg.id === modelMessageId
+                                ? { ...msg, text: msg.text === '...' ? chunk : msg.text + chunk }
+                                : msg
+                        )
+                    );
+                }
             }
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred';
@@ -149,9 +182,12 @@ export const useChat = () => {
             );
         } finally {
             setIsLoading(false);
-            resetComposer();
+            // After sending, reset the composer state for the next message
+            setActiveWorkflow(null);
+            setSelectedModules([]);
+            setImages([]);
         }
-    }, [isLoading, messages, images, activeWorkflow, selectedModules]);
+    }, [isLoading, images, activeWorkflow, selectedModules]);
 
     return {
         messages,

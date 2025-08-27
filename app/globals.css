@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand-primary: #FFFFFF;
+  --color-brand-secondary: #F3F4F6;
+  --color-brand-accent: #111827;
+  --color-brand-complement: #111827;
+  --color-brand-text: #111827;
+  --color-brand-text-secondary: #6B7280;
+  --color-brand-primary-opposite: #FFFFFF;
+  --color-brand-border: #E5E7EB;
+}
+.dark {
+  --color-brand-primary: #1e1e1e;
+  --color-brand-secondary: #2d2d2d;
+  --color-brand-accent: #8EDCC1;
+  --color-brand-complement: #dc8ea9;
+  --color-brand-text: #e0e0e0;
+  --color-brand-text-secondary: #a0a0a0;
+  --color-brand-primary-opposite: #1e1e1e;
+  --color-brand-border: #ffffff1a; /* Subtle grey border for dark theme */
+}
+
+/* Custom scrollbar for a better look */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-brand-secondary);
+  border-radius: 4px;
+  border: 2px solid var(--color-brand-primary);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background-color: var(--color-brand-secondary);
+  border-color: var(--color-brand-primary);
+}

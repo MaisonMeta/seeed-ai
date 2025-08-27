@@ -1,5 +1,7 @@
+"use client";
+
 import React from 'react';
-import { PromptModule, AdvancedWorkflow, DraggableItem } from '../types';
+import { PromptModule, AdvancedWorkflow, DraggableItem } from '../lib/types';
 
 interface PromptPaletteProps {
   modules: PromptModule[];
